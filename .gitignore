@@ -1,0 +1,16 @@
+# Python関連
+*.pyc
+__pycache__/
+
+# 仮想環境（環境によって名前が異なる場合があります）
+env/
+venv/
+*.egg-info/
+
+# ローカル設定
+*.sqlite3
+
+# その他IDEやOSが生成するファイル
+.DS_Store
+.idea/
+.vscode/

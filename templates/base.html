@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>タイピングスコアトラッカー</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'custom-purple': '#8a4baf',
+                        'custom-pink': '#e83e8c',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-r from-purple-50 to-pink-50 min-h-screen">
+    <nav class="bg-white shadow-md">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <a href="/" class="text-xl font-semibold text-custom-purple hover:text-custom-pink transition duration-300">
+                    <i data-feather="keyboard" class="inline-block mr-2"></i>
+                    タイピングスコアトラッカー
+                </a>
+                <div class="hidden md:flex space-x-4 items-center">
+                    {% if request.user.is_authenticated %}
+                        <span class="text-gray-600">こんにちは、{{ request.user.username }} さん</span>
+                        <form action="{% url 'logout' %}" method="post" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-custom-pink text-white px-4 py-2 rounded hover:bg-pink-600 transition duration-300">
+                                <i data-feather="log-out" class="inline-block mr-1"></i> ログアウト
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="text-custom-purple hover:text-custom-pink transition duration-300">ログイン</a>
+                        <a href="{% url 'accounts:signup' %}" class="bg-custom-purple text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300">
+                            <i data-feather="user-plus" class="inline-block mr-1"></i> 新規登録
+                        </a>
+                    {% endif %}
+                </div>
+                <button id="menu-toggle" class="md:hidden text-custom-purple focus:outline-none">
+                    <i data-feather="menu"></i>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-white p-4 shadow-inner">
+            {% if request.user.is_authenticated %}
+                <span class="block text-gray-600 mb-2">こんにちは、{{ request.user.username }} さん</span>
+                <!--logoutviewはgetだとバグるのでポストにしている-->
+                <form action="{% url 'logout' %}" method="post" class="block">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full text-left text-custom-pink hover:text-pink-700 p-2 transition duration-300">
+                        <i data-feather="log-out" class="inline-block mr-1"></i> ログアウト
+                    </button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}" class="block text-custom-purple hover:text-custom-pink p-2 transition duration-300">
+                    <i data-feather="log-in" class="inline-block mr-1"></i> ログイン
+                </a>
+                <a href="{% url 'accounts:signup' %}" class="block bg-custom-purple text-white text-center p-2 mt-2 rounded hover:bg-purple-700 transition duration-300">
+                    <i data-feather="user-plus" class="inline-block mr-1"></i> 新規登録
+                </a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <script>
+        feather.replace();
+
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>
