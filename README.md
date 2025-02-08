@@ -11,6 +11,7 @@
 ## 特徴と機能
 - タイピングテストの実施とスコアの記録
 - ユーザー認証・登録機能（Django標準認証を使用）
+- numpadでの入力
 
 (今後実装予定)
 - 管理者によるコミュニティ管理機能
@@ -26,5 +27,11 @@
 
 ## 今後
 - 機能の追加、デプロイに向けた勉強などしていく予定です
+
+![Image](https://github.com/user-attachments/assets/a42bfd8a-15c9-4d3c-be93-459da44278dc)
+
+![Image](https://github.com/user-attachments/assets/0a8560a8-ae11-4c75-9d22-872886164450)
+
+![Image](https://github.com/user-attachments/assets/a7e3f4d1-6d11-4d51-9a62-50541c78553e)
 
 
