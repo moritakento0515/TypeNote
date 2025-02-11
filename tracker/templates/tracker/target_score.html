@@ -1,8 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-
 {% load widget_tweaks %}
 {% load static %}
 <div class="max-w-md mx-auto px-4 py-8 bg-white shadow-md rounded-lg">
@@ -13,13 +11,13 @@
             <p>{{ message }}</p>
         </div>
     {% endif %}
-    <form method="POST" action="{% url 'tracker:create' %}" class="space-y-4">
+    <form method="POST" action="{% url 'tracker:target_score' %}" class="space-y-4">
         {% csrf_token %}
         <div class="space-y-2">
-            {{ scoreForm.score|add_class:"form-input w-full px-4 py-2 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50" }}
-            {% if scoreForm.score.errors %}
+            {{ targetForm.target_score|add_class:"form-input w-full px-4 py-2 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50" }}
+            {% if targetForm.target_score.errors %}
                 <div class="mt-1 text-sm text-custom-pink">
-                    {{ scoreForm.score.errors }}
+                    {{ targetForm.target_score.errors }}
                 </div>
             {% endif %}
         </div>

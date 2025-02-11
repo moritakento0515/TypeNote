@@ -1,16 +1,67 @@
-# Python関連
-*.pyc
+# Python が生成するキャッシュやバイトコード
 __pycache__/
+*.py[cod]
+*$py.class
 
-# 仮想環境（環境によって名前が異なる場合があります）
-env/
+# C拡張などで生成されるファイル
+*.so
+
+# 仮想環境ディレクトリ（プロジェクトごとに名前は異なるかもしれません）
 venv/
+ENV/
+env/
+.virtualenv/
+myenv/
+
+# パッケージや配布用に生成されるディレクトリ・ファイル
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
 *.egg-info/
+.installed.cfg
+*.egg
 
-# ローカル設定
-*.sqlite3
+# テストやカバレッジレポート関連
+.tox/
+.nox/
+coverage/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
 
-# その他IDEやOSが生成するファイル
-.DS_Store
-.idea/
+# Django 固有のファイル
+# SQLite データベース（もし SQLite を使っている場合）
+db.sqlite3
+
+# ログファイル
+*.log
+
+# メディアファイル（アップロードされたファイル等、必要に応じて）
+media/
+
+# 静的ファイル（ローカルで生成される場合は除外する）
+staticfiles/
+
+# ローカル環境変数ファイルなど（APIキーなどを含むためコミットしない）
+.env
+
+# IDE やエディタが生成するファイル
 .vscode/
+.idea/
+
+# OS 固有のファイル
+.DS_Store
+Thumbs.db

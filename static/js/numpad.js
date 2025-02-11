@@ -32,9 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // スコア入力フィールドの後にNumpadを挿入
     scoreInput.parentNode.insertBefore(numpadContainer, scoreInput.nextSibling);
     
-    // 入力フィールドをreadonlyに設定
-    scoreInput.readOnly = true;
-    scoreInput.classList.add('cursor-pointer');
 
     // イベントリスナーの設定
     scoreInput.addEventListener('click', function() {
