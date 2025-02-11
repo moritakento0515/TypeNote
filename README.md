@@ -30,11 +30,12 @@
 
 ## 今後
 - 機能の追加、デプロイに向けた勉強などしていく予定です
+ ![Image](https://github.com/user-attachments/assets/4996682b-fe89-4cbb-85e1-e1d1ee2e8b83)
+
+![Image](https://github.com/user-attachments/assets/a7e3f4d1-6d11-4d51-9a62-50541c78553e)
 
 ![Image](https://github.com/user-attachments/assets/a42bfd8a-15c9-4d3c-be93-459da44278dc)
 
-![Image](https://github.com/user-attachments/assets/0a8560a8-ae11-4c75-9d22-872886164450)
 
-![Image](https://github.com/user-attachments/assets/a7e3f4d1-6d11-4d51-9a62-50541c78553e)
 
 
