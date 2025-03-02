@@ -19,6 +19,9 @@ def user_scores(request):
     # ユーザーの直近20件のスコアを取得（降順）
     recent_scores = Score.objects.filter(user=request.user).order_by('-timestamp')[:20]
 
+    # ユーザーの最新スコアを取得（降順で1件）
+    latest_score = Score.objects.filter(user=request.user).order_by('-timestamp').first()    
+
     # ユーザーの目標スコアを取得
     target_score = UserProfile.objects.get(user=request.user).target_score
 
@@ -34,10 +37,11 @@ def user_scores(request):
             score.diff = abs(diff)
         else:
             score.diff_sign = "zero"
-            
-        message = '今日も頑張りましょう！'
-        if best_score >= target_score:
-            message = '次の目標を設定しよう！'
+          
+    #最新のスコアが目標スコアを超えているかどうかでメッセージを変更        
+    message = '今日も頑張りましょう！'
+    if latest_score.score >= target_score:
+        message = '次の目標を設定しよう！'
 
     context = {
         'message': message ,

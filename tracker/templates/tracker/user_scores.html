@@ -33,9 +33,24 @@
     </div>
 </div>
 
+{% load static %}
 
 <!-- スコア履歴チャート -->
-    <canvas id="scoreChart" width="800" height="400" class="mb-8"></canvas>
+<div class="bg-white shadow-md rounded-lg p-6 mb-8">
+    <canvas id="scoreChart"></canvas>
+</div>
+
+<!-- Chart.js 読み込み -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- DjangoのURLをJavaScript変数に渡す -->
+<script>
+    var scoreHistoryUrl = "{% url 'tracker:score_history' %}";
+</script>
+
+<!-- 外部JSを読み込む -->
+<script src="{% static 'js/score_chart.js' %}"></script>
+
 
 
 <!-- スコア履歴テーブル -->
@@ -68,44 +83,5 @@
     </div>
 </div>
 
-<!-- Chart.js と日付アダプターを読み込む -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 
-<script>
-    fetch("/tracker/scores/history/")
-        .then(response => response.json())
-        .then(data => {
-            var ctx = document.getElementById('scoreChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.timestamps.map(ts => new Date(ts)),
-                    datasets: [{
-                        label: 'スコア',
-                        data: data.scores,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        fill: false,
-                        tension: 0.2
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: {
-                            type: 'time',
-                            time: {
-                                unit: 'day',
-                                tooltipFormat: 'yyyy-MM',
-                                displayFormats: {
-                                    month: 'yyyy-MM'
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        })
-        .catch(error => console.error("Error fetching score history:", error));
-</script>
 {% endblock %}

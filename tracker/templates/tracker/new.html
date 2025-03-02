@@ -1,33 +1,39 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} 
 
 {% block content %}
 
+{% load widget_tweaks %}  <!-- Djangoのwidget_tweaksをロード（フォームのカスタマイズ用） -->
+{% load static %}  <!-- 静的ファイルをロード -->
 
-{% load widget_tweaks %}
-{% load static %}
 <div class="max-w-md mx-auto px-4 py-8 bg-white shadow-md rounded-lg">
-    <h1 class="text-2xl font-bold text-custom-purple mb-6">スコア登録</h1>
+    <h1 class="text-2xl font-bold text-custom-purple mb-6">スコア登録</h1>  <!-- タイトル -->
     
-    {% if message %}
+    {% if message %}  <!-- メッセージがある場合に表示 -->
         <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
             <p>{{ message }}</p>
         </div>
     {% endif %}
+    
+    <!-- スコア登録フォーム -->
     <form method="POST" action="{% url 'tracker:create' %}" class="space-y-4">
-        {% csrf_token %}
+        {% csrf_token %}  <!-- CSRF対策トークン -->
         <div class="space-y-2">
+            <!-- スコア入力フィールド -->
             {{ scoreForm.score|add_class:"form-input w-full px-4 py-2 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50" }}
-            {% if scoreForm.score.errors %}
+            {% if scoreForm.score.errors %}  <!-- エラーメッセージがある場合に表示 -->
                 <div class="mt-1 text-sm text-custom-pink">
                     {{ scoreForm.score.errors }}
                 </div>
             {% endif %}
         </div>
+        
+        <!-- 送信ボタン -->
         <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-custom-purple hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-custom-purple transition duration-300">
             登録する
         </button>
     </form>
 
+    <!-- スコア一覧ページへのリンク -->
     <div class="mt-6 text-center">
         <a href="{% url 'tracker:user_scores' %}" class="text-custom-purple hover:text-custom-pink transition duration-300">
             スコア一覧に戻る
@@ -35,7 +41,8 @@
     </div>
 </div>
 
-{% block extra_js %}
+{% block extra_js %}  <!-- 追加のJavaScriptを読み込むブロック -->
 <script src="{% static 'js/numpad.js' %}"></script>
 {% endblock %}
+
 {% endblock %}
