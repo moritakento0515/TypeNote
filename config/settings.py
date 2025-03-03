@@ -9,31 +9,27 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
-from pathlib import Path
 import os
-from dotenv import load_dotenv
+from pathlib import Path
+import environ  # django-environをインポート
 
-
-load_dotenv()
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# BASE_DIRの定義
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# django-environの初期化
+env = environ.Env(
+    # デフォルト値の設定が必要ならこちらで定義可能
+    DEBUG=(bool, False)
+)
+# .envファイルの読み込み
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG') == 'True'
-
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
-
+# SECRET_KEY, DEBUG, ALLOWED_HOSTS の設定
+SECRET_KEY = env('SECRET_KEY')
+DEBUG = env.bool('DEBUG')
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 
 # Application definition
-
 INSTALLED_APPS = [
     'widget_tweaks',
     'tracker',
@@ -76,14 +72,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
+# Database の設定
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': env('DATABASE_ENGINE', default='django.db.backends.sqlite3'),
+        'NAME': env('DATABASE_NAME', default=str(BASE_DIR / 'db.sqlite3')),
+        'USER': env('DATABASE_USER', default=''),
+        'PASSWORD': env('DATABASE_PASSWORD', default=''),
+        'HOST': env('DATABASE_HOST', default=''),
+        'PORT': env('DATABASE_PORT', default=''),
     }
 }
 

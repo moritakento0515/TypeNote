@@ -10,7 +10,8 @@ from django.db.models import Max
 
 #////////////////////////////////////////////////////////////////////////////////////////////////
 #ユーザーのスコア一覧を表示するビュー
-#ログインしていない状態でアクセスすると、ログインページにリダイレクトされる←すごい
+#ログインしていない状態でアクセスすると、ログインページにリダイレクトされる←すごい\
+@login_required
 def user_scores(request):
     # GETパラメータから score_type_id を取得
     score_type_id = request.GET.get("score_type_id")
