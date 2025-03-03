@@ -3,6 +3,7 @@
 {% block content %}
 <div class="max-w-4xl mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold text-custom-purple mb-6">個人スコア記録</h1>
+
 <!-- メッセージ表示 -->
     {% if message %}
     <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-6" role="alert">
@@ -24,14 +25,26 @@
         </div>
     </div>
     <div class="flex flex-col space-y-2">  <!-- ボタンを縦に並べる -->
-        <a href="{% url 'tracker:new' %}" class="bg-custom-purple hover:bg-purple-600 text-white font-bold py-2 px-4 rounded transition duration-300 inline-flex items-center justify-center">
+        <a href="{% url 'tracker:new_score' %}" class="bg-custom-purple hover:bg-purple-600 text-white font-bold py-2 px-4 rounded transition duration-300 inline-flex items-center justify-center">
             新規スコアを追加
         </a>
-        <a href="{% url 'tracker:register' %}" class="bg-custom-pink hover:bg-pink-600 text-white font-bold py-2 px-4 rounded transition duration-300 inline-flex items-center justify-center">
+        <a href="{% url 'tracker:new_target_score' %}" class="bg-custom-pink hover:bg-pink-600 text-white font-bold py-2 px-4 rounded transition duration-300 inline-flex items-center justify-center">
             目標スコアを設定
         </a>
     </div>
 </div>
+
+<!-- スコア種類の選択ドロップダウン -->
+<form method="get" action="{% url 'tracker:user_scores' %}" class="mb-6">
+    <label for="score_type">スコア種類を選択:</label>
+    <select name="score_type_id" id="score_type" onchange="this.form.submit()" class="border border-gray-300 rounded px-2 py-1">
+        {% for st in score_types %}
+            <option value="{{ st.id }}" {% if st.id == score_type.id %}selected{% endif %}>
+                {{ st.name }}
+            </option>
+        {% endfor %}
+    </select>
+</form>
 
 {% load static %}
 
@@ -45,7 +58,7 @@
 
 <!-- DjangoのURLをJavaScript変数に渡す -->
 <script>
-    var scoreHistoryUrl = "{% url 'tracker:score_history' %}";
+    var scoreHistoryUrl = "{% url 'tracker:score_history' %}?score_type_id={{ score_type.id }}";
 </script>
 
 <!-- 外部JSを読み込む -->
