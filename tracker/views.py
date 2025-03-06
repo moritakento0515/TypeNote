@@ -2,9 +2,46 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 from django.http import HttpResponse, JsonResponse
-from .models import Score, ScoreType, TargetScore
-from .forms import ScoreForm ,TargetScoreForm
 from django.db.models import Max
+
+from .models import Score, ScoreType, TargetScore, Community, CommunityMember, UserProfile
+from .forms import ScoreForm ,TargetScoreForm ,ProfileForm
+
+
+
+#////////////////////////////////////////////////////////////////////////////////////////////////
+#ユーザープロフィールを表示するビュー
+@login_required
+def profile_view(request):
+    # ログインユーザーのプロフィールを取得
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    # 所属しているコミュニティ（CommunityMember経由）を取得
+    communities = CommunityMember.objects.filter(user=request.user)
+    
+    context = {
+        'profile': profile,
+        'communities': communities,
+    }
+    return render(request, 'tracker/profile_view.html', context)
+
+@login_required
+def profile_edit(request):
+    profile = get_object_or_404(UserProfile, user=request.user)
+    
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('tracker:profile_view')
+    else:
+        form = ProfileForm(instance=profile)
+    
+    context = {
+        'form': form,
+    }
+    return render(request, 'tracker/profile_edit.html', context)
+
+
 
 
 
@@ -102,6 +139,8 @@ def new_score(request):
     return render(request, 'tracker/new_score.html', context)
 
 #新規スコア追加フォームの入力内容を受け取り、データベースに保存するビュー
+from django.urls import reverse
+
 @login_required
 def new_score_create(request):
     if request.method == 'POST':
@@ -110,10 +149,10 @@ def new_score_create(request):
             score = scoreForm.save(commit=False)
             score.user = request.user
             score.save()
-            return redirect('tracker:user_scores')
+            # スコアのスコアタイプIDをGETパラメータとして付与してリダイレクト
+            return redirect(f'{reverse("tracker:user_scores")}?score_type_id={score.score_type.id}')
         else:
             return render(request, 'tracker/new_score.html', {'scoreForm': scoreForm,})
-
 
 #////////////////////////////////////////////////////////////////////////////////////////////////
 #目標スコア登録フォームを表示
@@ -149,7 +188,7 @@ def new_target_score_create(request):
                 # 既に存在している場合は更新
                 targetScore.target_score = target_score_value
                 targetScore.save()
-            return redirect('tracker:user_scores')
+            return redirect(f'{reverse("tracker:user_scores")}?score_type_id={score_type.id}')
         else:
             return render(request, 'tracker/new_target_score.html', {'targetScoreForm': targetScoreForm,})
 
@@ -157,20 +196,53 @@ def new_target_score_create(request):
 #////////////////////////////////////////////////////////////////////////////////////////////////
 #スコアランキングを表示するビュー
 @login_required
-def score_ranking(request, score_type_id):
-    # 指定されたスコア種類のオブジェクトを取得
-    score_type = get_object_or_404(ScoreType, id=score_type_id)
-    
-    # 各ユーザーのそのスコア種類での最高スコアを算出
-    ranking = (
-        Score.objects.filter(score_type=score_type)
-        .values("user__username")
-        .annotate(best_score=Max("score"))
-        .order_by("-best_score")
-    )
-    
+def community_score_ranking(request):
+    communities = Community.objects.all()
+    score_types = ScoreType.objects.all()
+
+    community_id = request.GET.get("community")
+    score_type_id = request.GET.get("score_type")
+
+    ranking = []
+    community = None
+    score_type = None
+
+    if community_id and score_type_id:
+        community = get_object_or_404(Community, id=community_id)
+        score_type = get_object_or_404(ScoreType, id=score_type_id)
+
+        community_members = CommunityMember.objects.filter(community=community).values_list("user", flat=True)
+
+        ranking = (
+            Score.objects.filter(user__in=community_members, score_type=score_type)
+            .values("user__id", "user__username", "user__userprofile__nickname")
+            .annotate(best_score=Max("score"))
+            .order_by("-best_score")
+        )
+
+        ranked_list = []
+        last_score = None
+        rank = 0
+        for index, entry in enumerate(ranking, start=1):
+            if last_score != entry["best_score"]:
+                rank = index
+            last_score = entry["best_score"]
+            ranked_list.append({
+                "rank": rank,
+                "user_id": entry["user__id"],
+                "nickname": entry["user__userprofile__nickname"] or entry["user__username"],
+                "best_score": entry["best_score"],
+            })
+
+        ranking = ranked_list
+
     context = {
+        'communities': communities,
+        'score_types': score_types,
+        'selected_community_id': int(community_id) if community_id else None,
+        'selected_score_type_id': int(score_type_id) if score_type_id else None,
+        'community': community,
         'score_type': score_type,
         'ranking': ranking,
     }
-    return render(request, 'tracker/score_ranking.html', context)
+    return render(request, 'tracker/community_score_ranking.html', context)

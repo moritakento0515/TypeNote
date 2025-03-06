@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="space-y-6">
+    <!-- プロフィールヘッダー -->
+    <div class="flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+        <i data-feather="user" class="w-6 h-6 mr-2 text-custom-purple"></i>
+        プロフィール
+      </h1>
+      <a href="{% url 'tracker:profile_edit' %}" class="inline-flex items-center px-4 py-2 bg-custom-purple text-white rounded-full hover:bg-purple-700 transition duration-300">
+        <i data-feather="edit-2" class="w-4 h-4 mr-2"></i>
+        プロフィール編集
+      </a>
+    </div>
+
+    <!-- プロフィール情報 -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+      <div class="space-y-4">
+        <div class="flex items-start">
+          <div class="w-32 flex-shrink-0">
+            <span class="text-gray-600 font-medium">ニックネーム</span>
+          </div>
+          <div class="flex-grow">
+            <p class="text-gray-800 font-semibold">{{ profile.nickname }}</p>
+          </div>
+        </div>
+        <div class="flex items-start">
+          <div class="w-32 flex-shrink-0">
+            <span class="text-gray-600 font-medium">自己紹介</span>
+          </div>
+          <div class="flex-grow">
+            <p class="text-gray-800">{{ profile.bio|linebreaksbr|default:"未設定" }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- コミュニティセクション -->
+    <div class="mt-8">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+        <i data-feather="users" class="w-5 h-5 mr-2 text-custom-purple"></i>
+        所属コミュニティ
+      </h2>
+      
+      {% if communities %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {% for membership in communities %}
+            <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-100 hover:border-custom-purple transition duration-300">
+              <div class="flex items-center">
+                <i data-feather="hash" class="w-4 h-4 mr-2 text-custom-purple"></i>
+                <span class="text-gray-800">{{ membership.community.name }}</span>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="bg-gray-50 rounded-lg p-6 text-center">
+          <i data-feather="users" class="w-12 h-12 mx-auto mb-3 text-gray-400"></i>
+          <p class="text-gray-600">所属しているコミュニティはありません。</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

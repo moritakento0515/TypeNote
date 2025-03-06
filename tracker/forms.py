@@ -1,5 +1,5 @@
 from django import forms
-from .models import Score, TargetScore
+from .models import Score, TargetScore, UserProfile
 
 #検索フォーム
 #class SearchForm(forms.Form):
@@ -16,4 +16,9 @@ class TargetScoreForm(forms.ModelForm):
    class Meta:
         model = TargetScore
         fields = ('target_score', 'score_type', )
-      
+   
+#プロフィール編集フォーム   
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['nickname', 'bio']

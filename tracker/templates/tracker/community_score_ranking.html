@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- ヘッダー -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+        <h1 class="text-2xl md:text-3xl font-bold text-custom-purple mb-4 md:mb-0">
+            <i data-feather="award" class="inline-block mr-2"></i>
+            コミュニティ スコアランキング
+        </h1>
+    </div>
+
+    <!-- 選択フォーム -->
+    <div class="bg-purple-50 rounded-lg p-4 shadow-sm">
+        <form method="GET" class="flex flex-col md:flex-row md:items-end space-y-4 md:space-y-0 md:space-x-4">
+            <div class="flex-1">
+                <label for="community" class="block text-sm font-medium text-gray-700 mb-1">
+                    <i data-feather="users" class="inline-block mr-1 w-4 h-4"></i>
+                    コミュニティを選択:
+                </label>
+                <select name="community" id="community" 
+                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-custom-purple focus:ring focus:ring-custom-purple focus:ring-opacity-50">
+                    <option value="">-- 選択してください --</option>
+                    {% for comm in communities %}
+                    <option value="{{ comm.id }}" {% if selected_community_id == comm.id %}selected{% endif %}>
+                        {{ comm.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="flex-1">
+                <label for="score_type" class="block text-sm font-medium text-gray-700 mb-1">
+                    <i data-feather="bar-chart-2" class="inline-block mr-1 w-4 h-4"></i>
+                    スコアタイプを選択:
+                </label>
+                <select name="score_type" id="score_type"
+                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-custom-purple focus:ring focus:ring-custom-purple focus:ring-opacity-50">
+                    <option value="">-- 選択してください --</option>
+                    {% for type in score_types %}
+                    <option value="{{ type.id }}" {% if selected_score_type_id == type.id %}selected{% endif %}>
+                        {{ type.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <button type="submit" 
+                    class="w-full md:w-auto bg-custom-purple hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 flex items-center justify-center">
+                    <i data-feather="search" class="inline-block mr-1 w-4 h-4"></i>
+                    ランキングを表示
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ランキング結果 -->
+    <div class="mt-6">
+        {% if not selected_community_id or not selected_score_type_id %}
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i data-feather="info" class="h-5 w-5 text-blue-400"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-blue-700">
+                        コミュニティとスコアタイプを選択してください。
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% elif ranking %}
+        <div class="space-y-4">
+            <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                <i data-feather="trophy" class="inline-block mr-2 text-custom-pink"></i>
+                {{ score_type.name }} のランキング
+            </h2>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
+                    <thead class="bg-gradient-to-r from-custom-purple to-custom-pink text-white">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider w-16">
+                                順位
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                ユーザー
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                最高スコア
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for entry in ranking %}
+                        <tr class="{% cycle 'bg-white' 'bg-purple-50' %}">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center justify-center">
+                                    {% if entry.rank <= 3 %}
+                                    <div class="relative inline-flex items-center justify-center w-10 h-10 rounded-full overflow-hidden
+                                                {% if entry.rank == 1 %}bg-yellow-100 text-yellow-600
+                                                {% elif entry.rank == 2 %}bg-gray-100 text-gray-600
+                                                {% else %}bg-yellow-50 text-yellow-700{% endif %}">
+                                        <i data-feather="award" class="absolute w-8 h-8 opacity-20"></i>
+                                        <span class="relative z-10 font-bold text-lg">{{ entry.rank }}</span>
+                                    </div>
+                                    {% else %}
+                                    <span class="font-medium text-gray-700">{{ entry.rank }}</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ entry.nickname }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-bold text-custom-purple">{{ entry.best_score }}</div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i data-feather="alert-circle" class="h-5 w-5 text-yellow-400"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-yellow-700">
+                        ランキングデータがありません。
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  feather.replace({ width: '1em', height: '1em' });
+</script>
+{% endblock %}
+

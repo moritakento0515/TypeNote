@@ -19,67 +19,116 @@
                     colors: {
                         'custom-purple': '#8a4baf',
                         'custom-pink': '#e83e8c',
+                        'custom-gray': '#f8f9fa',
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-gradient-to-r from-purple-50 to-pink-50 min-h-screen">
-    <nav class="bg-white shadow-md">
-        <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
-                <a href="/" class="text-xl font-semibold text-custom-purple hover:text-custom-pink transition duration-300">
-                    <i data-feather="keyboard" class="inline-block mr-2"></i>
-                    タイピングスコアトラッカー
+<body class="bg-custom-gray min-h-screen flex flex-col">
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <a href="/" class="flex items-center space-x-3 text-custom-purple hover:text-custom-pink transition duration-300">
+                    <i data-feather="keyboard" class="w-8 h-8"></i>
+                    <span class="font-bold text-xl">タイピングスコアトラッカー</span>
                 </a>
-                <div class="hidden md:flex space-x-4 items-center">
+                <div class="hidden md:flex items-center space-x-4">
                     {% if request.user.is_authenticated %}
                         <span class="text-gray-600">こんにちは、{{ request.user.username }} さん</span>
                         <form action="{% url 'logout' %}" method="post" class="inline">
                             {% csrf_token %}
-                            <button type="submit" class="bg-custom-pink text-white px-4 py-2 rounded hover:bg-pink-600 transition duration-300">
-                                <i data-feather="log-out" class="inline-block mr-1"></i> ログアウト
+                            <button type="submit" class="bg-custom-pink text-white px-4 py-2 rounded-full hover:bg-pink-600 transition duration-300 flex items-center">
+                                <i data-feather="log-out" class="w-4 h-4 mr-2"></i> ログアウト
                             </button>
                         </form>
                     {% else %}
                         <a href="{% url 'login' %}" class="text-custom-purple hover:text-custom-pink transition duration-300">ログイン</a>
-                        <a href="{% url 'accounts:signup' %}" class="bg-custom-purple text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300">
-                            <i data-feather="user-plus" class="inline-block mr-1"></i> 新規登録
+                        <a href="{% url 'accounts:signup' %}" class="bg-custom-purple text-white px-4 py-2 rounded-full hover:bg-purple-700 transition duration-300 flex items-center">
+                            <i data-feather="user-plus" class="w-4 h-4 mr-2"></i> 新規登録
                         </a>
                     {% endif %}
                 </div>
                 <button id="menu-toggle" class="md:hidden text-custom-purple focus:outline-none">
-                    <i data-feather="menu"></i>
+                    <i data-feather="menu" class="w-6 h-6"></i>
                 </button>
             </div>
         </div>
         <div id="mobile-menu" class="hidden md:hidden bg-white p-4 shadow-inner">
             {% if request.user.is_authenticated %}
                 <span class="block text-gray-600 mb-2">こんにちは、{{ request.user.username }} さん</span>
-                <!--logoutviewはgetだとバグるのでポストにしている-->
-                <form action="{% url 'logout' %}" method="post" class="block">
+                <form action="{% url 'logout' %}" method="post" class="block mb-4">
                     {% csrf_token %}
-                    <button type="submit" class="w-full text-left text-custom-pink hover:text-pink-700 p-2 transition duration-300">
-                        <i data-feather="log-out" class="inline-block mr-1"></i> ログアウト
+                    <button type="submit" class="w-full text-left text-custom-pink hover:text-pink-700 p-2 transition duration-300 flex items-center">
+                        <i data-feather="log-out" class="w-4 h-4 mr-2"></i> ログアウト
                     </button>
                 </form>
             {% else %}
-                <a href="{% url 'login' %}" class="block text-custom-purple hover:text-custom-pink p-2 transition duration-300">
-                    <i data-feather="log-in" class="inline-block mr-1"></i> ログイン
+                <a href="{% url 'login' %}" class="block text-custom-purple hover:text-custom-pink p-2 transition duration-300 flex items-center">
+                    <i data-feather="log-in" class="w-4 h-4 mr-2"></i> ログイン
                 </a>
-                <a href="{% url 'accounts:signup' %}" class="block bg-custom-purple text-white text-center p-2 mt-2 rounded hover:bg-purple-700 transition duration-300">
-                    <i data-feather="user-plus" class="inline-block mr-1"></i> 新規登録
+                <a href="{% url 'accounts:signup' %}" class="block bg-custom-purple text-white text-center p-2 mt-2 rounded-full hover:bg-purple-700 transition duration-300 flex items-center justify-center">
+                    <i data-feather="user-plus" class="w-4 h-4 mr-2"></i> 新規登録
                 </a>
+            {% endif %}
+            
+            {% if request.user.is_authenticated %}
+            <div class="mt-4 border-t pt-4 space-y-2">
+                <a href="{% url 'tracker:user_scores' %}" class="block text-gray-700 hover:text-custom-purple p-2 transition duration-300 flex items-center">
+                    <i data-feather="user" class="w-4 h-4 mr-2"></i> マイスコア
+                </a>
+                <a href="{% url 'tracker:community_score_ranking' %}" class="block text-gray-700 hover:text-custom-purple p-2 transition duration-300 flex items-center">
+                    <i data-feather="bar-chart-2" class="w-4 h-4 mr-2"></i> コミュニティランキング
+                </a>
+                <a href="{% url 'tracker:new_target_score' %}" class="block text-gray-700 hover:text-custom-purple p-2 transition duration-300 flex items-center">
+                    <i data-feather="target" class="w-4 h-4 mr-2"></i> 目標スコア設定
+                </a>
+                <a href="{% url 'tracker:new_score' %}" class="block text-gray-700 hover:text-custom-purple p-2 transition duration-300 flex items-center">
+                    <i data-feather="plus-circle" class="w-4 h-4 mr-2"></i> 新規スコア登録
+                </a>
+            </div>
             {% endif %}
         </div>
     </nav>
 
-    <main class="container mx-auto p-8">
+
+    {% if request.user.is_authenticated %}
+    <div class="bg-white shadow-inner">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-wrap justify-center md:justify-start space-x-1 md:space-x-4 py-3">
+                <a href="{% url 'tracker:user_scores' %}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-custom-purple hover:text-white transition duration-300 mb-2 md:mb-0">
+                    <i data-feather="user" class="w-4 h-4 mr-2"></i>
+                    <span>マイスコア</span>
+                </a>
+                <a href="{% url 'tracker:community_score_ranking' %}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-custom-purple hover:text-white transition duration-300 mb-2 md:mb-0">
+                    <i data-feather="bar-chart-2" class="w-4 h-4 mr-2"></i>
+                    <span>コミュニティランキング</span>
+                </a>
+                <a href="{% url 'tracker:new_target_score' %}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-custom-purple hover:text-white transition duration-300 mb-2 md:mb-0">
+                    <i data-feather="target" class="w-4 h-4 mr-2"></i>
+                    <span>目標スコア設定</span>
+                </a>
+                <a href="{% url 'tracker:new_score' %}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-custom-purple hover:text-white transition duration-300 mb-2 md:mb-0">
+                    <i data-feather="plus-circle" class="w-4 h-4 mr-2"></i>
+                    <span>新規スコア登録</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <main class="flex-grow container mx-auto px-4 py-8">
         <div class="bg-white rounded-lg shadow-lg p-6">
             {% block content %}{% endblock %}
         </div>
     </main>
+
+    <footer class="bg-white shadow-md mt-8">
+        <div class="container mx-auto px-4 py-4 text-center text-gray-600">
+            &copy; 2023 タイピングスコアトラッカー. All rights reserved.
+        </div>
+    </footer>
 
     <script>
         feather.replace();
@@ -90,3 +139,4 @@
     </script>
 </body>
 </html>
+

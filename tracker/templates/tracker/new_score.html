@@ -1,55 +1,64 @@
-{% extends 'base.html' %} 
+{% extends 'base.html' %}
 
 {% block content %}
 
-{% load widget_tweaks %}  <!-- Djangoのwidget_tweaksをロード -->
-{% load static %}  <!-- 静的ファイルをロード -->
+{% load widget_tweaks %}
+{% load static %}
 
-<div class="max-w-md mx-auto px-4 py-8 bg-white shadow-md rounded-lg">
-    <h1 class="text-2xl font-bold text-custom-purple mb-6">スコア登録</h1>
+<div class="max-w-md mx-auto px-6 py-8 bg-white shadow-lg rounded-lg border border-gray-100">
+    <h1 class="text-3xl font-bold text-custom-purple mb-6 flex items-center">
+        <i data-feather="plus-circle" class="mr-2"></i>スコア登録
+    </h1>
     
     {% if message %}
-        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
-            <p>{{ message }}</p>
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-md" role="alert">
+            <p class="flex items-center">
+                <i data-feather="check-circle" class="mr-2"></i>
+                {{ message }}
+            </p>
         </div>
     {% endif %}
     
-    <!-- スコア登録フォーム -->
-    <form method="POST" action="{% url 'tracker:new_score_create' %}" class="space-y-4">
+    <form method="POST" action="{% url 'tracker:new_score_create' %}" class="space-y-6">
         {% csrf_token %}
         
-        <!-- スコア種類選択フィールド -->
         <div class="space-y-2">
-            <label for="{{ scoreForm.score_type.id_for_label }}">{{ scoreForm.score_type.label }}</label>
-            {{ scoreForm.score_type|add_class:"form-select w-full px-4 py-2 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50" }}
+            <label for="{{ scoreForm.score_type.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                {{ scoreForm.score_type.label }}
+            </label>
+            {{ scoreForm.score_type|add_class:"form-select w-full px-4 py-2 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-custom-purple focus:border-custom-purple bg-gray-50 transition duration-200" }}
             {% if scoreForm.score_type.errors %}
-                <div class="mt-1 text-sm text-custom-pink">
+                <div class="mt-1 text-sm text-custom-pink flex items-center">
+                    <i data-feather="alert-circle" class="mr-1"></i>
                     {{ scoreForm.score_type.errors }}
                 </div>
             {% endif %}
         </div>
         
-        <!-- スコア入力フィールド -->
         <div class="space-y-2">
-            <label for="{{ scoreForm.score.id_for_label }}">{{ scoreForm.score.label }}</label>
-            {{ scoreForm.score|add_class:"form-input w-full px-4 py-2 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50" }}
+            <label for="{{ scoreForm.score.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                {{ scoreForm.score.label }}
+            </label>
+            <div class="relative">
+                {{ scoreForm.score|add_class:"form-input w-full px-4 py-2 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-custom-purple focus:border-custom-purple bg-gray-50 transition duration-200" }}
+            </div>
             {% if scoreForm.score.errors %}
-                <div class="mt-1 text-sm text-custom-pink">
+                <div class="mt-1 text-sm text-custom-pink flex items-center">
+                    <i data-feather="alert-circle" class="mr-1"></i>
                     {{ scoreForm.score.errors }}
                 </div>
             {% endif %}
         </div>
         
-        
-        <!-- 送信ボタン -->
-        <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-custom-purple hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-custom-purple transition duration-300">
+        <button type="submit" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-custom-purple hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-custom-purple transition duration-300">
+            <i data-feather="save" class="mr-2"></i>
             登録する
         </button>
     </form>
 
-    <!-- スコア一覧ページへのリンク -->
-    <div class="mt-6 text-center">
-        <a href="{% url 'tracker:user_scores' %}" class="text-custom-purple hover:text-custom-pink transition duration-300">
+    <div class="mt-8 text-center">
+        <a href="{% url 'tracker:user_scores' %}" class="inline-flex items-center text-custom-purple hover:text-custom-pink transition duration-300">
+            <i data-feather="arrow-left" class="mr-2"></i>
             スコア一覧に戻る
         </a>
     </div>
@@ -57,6 +66,11 @@
 
 {% block extra_js %}
 <script src="{% static 'js/numpad.js' %}"></script>
+<script>
+    // Feather Iconsを初期化
+    feather.replace();
+</script>
 {% endblock %}
 
 {% endblock %}
+
