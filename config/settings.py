@@ -75,12 +75,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database の設定
 DATABASES = {
     'default': {
-        'ENGINE': env('DATABASE_ENGINE', default='django.db.backends.sqlite3'),
-        'NAME': env('DATABASE_NAME', default=str(BASE_DIR / 'db.sqlite3')),
-        'USER': env('DATABASE_USER', default=''),
-        'PASSWORD': env('DATABASE_PASSWORD', default=''),
-        'HOST': env('DATABASE_HOST', default=''),
-        'PORT': env('DATABASE_PORT', default=''),
+        'ENGINE': env('DATABASE_ENGINE'),
+        'NAME': env('DATABASE_NAME'),
+        'USER': env('DATABASE_USER'),
+        'PASSWORD': env('DATABASE_PASSWORD'),
+        'HOST': env('DATABASE_HOST'),
+        'PORT': env('DATABASE_PORT'),
     }
 }
 
@@ -127,6 +127,7 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]                       
 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
