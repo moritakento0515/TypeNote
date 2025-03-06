@@ -8,18 +8,18 @@ from .models import Community, CommunityMember, UserProfile
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
-        print(f"Creating UserProfile for {instance.username}")
+        #print(f"Creating UserProfile for {instance.username}")
 
 # 全ユーザーを「Global」コミュニティに追加
 @receiver(post_save, sender=User)
 def add_user_to_global_community(sender, instance, created, **kwargs):
     if created:
-        print(f"Adding {instance.username} to Global community")
+        #print(f"Adding {instance.username} to Global community")
         # スーパーユーザーがいるか確認し、いなければ作成
         admin_user = User.objects.filter(is_superuser=True).first()
         if not admin_user:
             admin_user = User.objects.create_superuser(username="admin", password="xyz80666")
-            print("管理者ユーザー 'admin' を作成しました")
+            #print("管理者ユーザー 'admin' を作成しました")
 
         # Global コミュニティを作成（オーナーはスーパーユーザー）
         global_community, _ = Community.objects.get_or_create(
