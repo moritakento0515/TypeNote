@@ -45,6 +45,7 @@ coverage.xml
 # Django 固有のファイル
 # SQLite データベース（もし SQLite を使っている場合）
 db.sqlite3
+myudatabasedb.sqlite3
 
 # ログファイル
 *.log
