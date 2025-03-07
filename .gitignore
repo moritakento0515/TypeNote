@@ -66,3 +66,4 @@ staticfiles/
 # OS 固有のファイル
 .DS_Store
 Thumbs.db
+*.swp
