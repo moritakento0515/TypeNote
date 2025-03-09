@@ -11,6 +11,34 @@
         body {
             font-family: 'Noto Sans JP', sans-serif;
         }
+        
+        /* スムーズスクロール */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* フォーカス状態の改善 */
+        a:focus, button:focus {
+            outline: 2px solid #8a4baf;
+            outline-offset: 2px;
+        }
+        
+        /* アクティブページインジケーター */
+        .nav-link.active {
+            background-color: rgba(138, 75, 175, 0.1);
+            color: #8a4baf;
+            font-weight: 500;
+        }
+        
+        /* ページ遷移アニメーション */
+        .page-transition {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
     <script>
         tailwind.config = {
@@ -27,6 +55,11 @@
     </script>
 </head>
 <body class="bg-custom-gray min-h-screen flex flex-col">
+    <!-- ページ読み込みインジケーター -->
+    <div id="page-loader" class="fixed top-0 left-0 w-full h-1 bg-gray-200 z-50">
+        <div class="h-full bg-gradient-to-r from-custom-purple to-custom-pink w-0 transition-all duration-300" id="progress-bar"></div>
+    </div>
+
     <nav class="bg-white shadow-lg">
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center">
@@ -75,60 +108,44 @@
             
             {% if request.user.is_authenticated %}
             <div class="mt-4 border-t pt-4 space-y-2">
-                <a href="{% url 'tracker:profile_view'%}" class="block text-gray-700 hover:text-custom-purple p-2 transition duration-300 flex items-center">
-                    <i data-feather="plus-circle" class="w-4 h-4 mr-2"></i>プロフィール
+                <a href="{% url 'tracker:profile_view'%}" class="block text-gray-700 hover:text-custom-purple p-2 transition duration-300 flex items-center nav-link {% if request.resolver_match.url_name == 'profile_view' %}active{% endif %}">
+                    <i data-feather="user" class="w-4 h-4 mr-2"></i> プロフィール
                 </a>
-                <a href="{% url 'tracker:user_scores' %}" class="block text-gray-700 hover:text-custom-purple p-2 transition duration-300 flex items-center">
-                    <i data-feather="user" class="w-4 h-4 mr-2"></i> マイスコア
+                <a href="{% url 'tracker:user_scores' %}" class="block text-gray-700 hover:text-custom-purple p-2 transition duration-300 flex items-center nav-link {% if request.resolver_match.url_name == 'user_scores' %}active{% endif %}">
+                    <i data-feather="activity" class="w-4 h-4 mr-2"></i> マイスコア
                 </a>
-                <a href="{% url 'tracker:community_score_ranking' %}" class="block text-gray-700 hover:text-custom-purple p-2 transition duration-300 flex items-center">
+                <a href="{% url 'tracker:community_score_ranking' %}" class="block text-gray-700 hover:text-custom-purple p-2 transition duration-300 flex items-center nav-link {% if request.resolver_match.url_name == 'community_score_ranking' %}active{% endif %}">
                     <i data-feather="bar-chart-2" class="w-4 h-4 mr-2"></i> コミュニティランキング
                 </a>
-                <a href="{% url 'tracker:new_target_score' %}" class="block text-gray-700 hover:text-custom-purple p-2 transition duration-300 flex items-center">
-                    <i data-feather="target" class="w-4 h-4 mr-2"></i> 目標スコア設定
-                </a>
-                <a href="{% url 'tracker:new_score' %}" class="block text-gray-700 hover:text-custom-purple p-2 transition duration-300 flex items-center">
-                    <i data-feather="plus-circle" class="w-4 h-4 mr-2"></i> 新規スコア登録
-                </a>
-                
             </div>
             {% endif %}
         </div>
     </nav>
 
-
     {% if request.user.is_authenticated %}
     <div class="bg-white shadow-inner">
         <div class="container mx-auto px-4">
             <div class="flex flex-wrap justify-center md:justify-start space-x-1 md:space-x-4 py-3">
-                <a href="{% url 'tracker:profile_view' %}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-custom-purple hover:text-white transition duration-300 mb-2 md:mb-0">
+                <!-- プロフィールをナビゲーションに移動 -->
+                <a href="{% url 'tracker:profile_view'%}" class="nav-link flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-custom-purple hover:text-white transition duration-300 mb-2 md:mb-0 {% if request.resolver_match.url_name == 'profile_view' %}active{% endif %}">
                     <i data-feather="user" class="w-4 h-4 mr-2"></i>
                     <span>プロフィール</span>
-                </a> 
-                <a href="{% url 'tracker:user_scores' %}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-custom-purple hover:text-white transition duration-300 mb-2 md:mb-0">
-                    <i data-feather="user" class="w-4 h-4 mr-2"></i>
+                </a>
+                <!-- マイスコアのアイコンを変更 -->
+                <a href="{% url 'tracker:user_scores' %}" class="nav-link flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-custom-purple hover:text-white transition duration-300 mb-2 md:mb-0 {% if request.resolver_match.url_name == 'user_scores' %}active{% endif %}">
+                    <i data-feather="activity" class="w-4 h-4 mr-2"></i>
                     <span>マイスコア</span>
                 </a>
-                <a href="{% url 'tracker:community_score_ranking' %}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-custom-purple hover:text-white transition duration-300 mb-2 md:mb-0">
+                <a href="{% url 'tracker:community_score_ranking' %}" class="nav-link flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-custom-purple hover:text-white transition duration-300 mb-2 md:mb-0 {% if request.resolver_match.url_name == 'community_score_ranking' %}active{% endif %}">
                     <i data-feather="bar-chart-2" class="w-4 h-4 mr-2"></i>
                     <span>コミュニティランキング</span>
                 </a>
-                <a href="{% url 'tracker:new_target_score' %}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-custom-purple hover:text-white transition duration-300 mb-2 md:mb-0">
-                    <i data-feather="target" class="w-4 h-4 mr-2"></i>
-                    <span>目標スコア設定</span>
-                </a>
-                <a href="{% url 'tracker:new_score' %}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-custom-purple hover:text-white transition duration-300 mb-2 md:mb-0">
-                    <i data-feather="plus-circle" class="w-4 h-4 mr-2"></i>
-                    <span>新規スコア登録</span>
-                </a>
-                
-                
             </div>
         </div>
     </div>
     {% endif %}
 
-    <main class="flex-grow container mx-auto px-4 py-8">
+    <main class="flex-grow container mx-auto px-4 py-8 page-transition">
         <div class="bg-white rounded-lg shadow-lg p-6">
             {% block content %}{% endblock %}
         </div>
@@ -136,17 +153,56 @@
 
     <footer class="bg-white shadow-md mt-8">
         <div class="container mx-auto px-4 py-4 text-center text-gray-600">
-            
+            <div class="flex justify-center items-center">
+                <i data-feather="keyboard" class="w-4 h-4 mr-2"></i>
+                <span>タイピングスコアトラッカー</span>
+            </div>
         </div>
     </footer>
 
+    <!-- トップに戻るボタン -->
+    <button id="back-to-top" class="fixed bottom-6 right-6 bg-custom-purple text-white p-3 rounded-full shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-purple-700 focus:outline-none" aria-label="トップに戻る">
+        <i data-feather="arrow-up" class="w-5 h-5"></i>
+    </button>
+
     <script>
+        // アイコンの初期化
         feather.replace();
 
+        // モバイルメニュートグル
         document.getElementById('menu-toggle').addEventListener('click', function() {
             document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+        
+        // ページ読み込みインジケーター
+        window.addEventListener('load', function() {
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = '100%';
+            
+            setTimeout(() => {
+                document.getElementById('page-loader').style.opacity = '0';
+            }, 500);
+        });
+        
+        // トップに戻るボタン
+        const backToTopButton = document.getElementById('back-to-top');
+        
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 300) {
+                backToTopButton.classList.remove('opacity-0', 'invisible');
+                backToTopButton.classList.add('opacity-100');
+            } else {
+                backToTopButton.classList.remove('opacity-100');
+                backToTopButton.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        backToTopButton.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         });
     </script>
 </body>
 </html>
-

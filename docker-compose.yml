@@ -6,8 +6,8 @@ services:
     container_name: django_web
     restart: always
     #本番では消す
-    #volumes:
-      #- .:/app
+    volumes:
+      - .:/app
       
     ports:
       - "8000:8000"

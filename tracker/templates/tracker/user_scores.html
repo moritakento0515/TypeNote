@@ -1,35 +1,39 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto">
-    <div class="flex items-center justify-between mb-8">
-        <h1 class="text-3xl font-bold text-custom-purple">
-            <i data-feather="bar-chart" class="inline-block mr-2"></i>個人スコア記録
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <!-- Header Section with improved alignment and more horizontal space -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <h1 class="text-3xl font-bold text-custom-purple flex items-center">
+            <i data-feather="bar-chart" class="inline-block mr-3 h-6 w-6"></i>個人スコア記録
         </h1>
         
-        <!-- スコア種類の選択ドロップダウン -->
-        <form method="get" action="{% url 'tracker:user_scores' %}" class="flex items-center">
-            <label for="score_type" class="mr-2 text-gray-700 font-medium">スコア種類:</label>
-            <select name="score_type_id" id="score_type" onchange="this.form.submit()" 
-                class="border border-gray-300 rounded-md px-3 py-2 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-custom-purple focus:border-transparent transition duration-200">
-                {% for st in score_types %}
-                    <option value="{{ st.id }}" {% if st.id == score_type.id %}selected{% endif %}>
-                        {{ st.name }}
-                    </option>
-                {% endfor %}
-            </select>
+        <!-- Score type dropdown with improved styling -->
+        <form method="get" action="{% url 'tracker:user_scores' %}" class="w-full md:w-auto">
+            <div class="flex items-center">
+                <label for="score_type" class="mr-2 text-gray-700 font-medium whitespace-nowrap">スコア種類:</label>
+                <select name="score_type_id" id="score_type" onchange="this.form.submit()" 
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-custom-purple focus:border-transparent transition duration-200">
+                    {% for st in score_types %}
+                        <option value="{{ st.id }}" {% if st.id == score_type.id %}selected{% endif %}>
+                            {{ st.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
         </form>
     </div>
 
-    <!-- メッセージ表示 -->
+    <!-- Message display with improved styling -->
     {% if message %}
     <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-6 rounded-md shadow-sm" role="alert">
         <p class="font-medium">{{ message }}</p>
     </div>
     {% endif %}
 
-    <!-- 最高スコアと目標スコア -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <!-- Score Cards and Action Buttons in a 3-column layout on larger screens -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Best Score Card -->
         <div class="bg-gradient-to-r from-custom-purple to-purple-700 text-white rounded-lg p-6 shadow-lg transform hover:scale-105 transition duration-300">
             <div class="flex items-center justify-between">
                 <div>
@@ -42,6 +46,7 @@
             </div>
         </div>
         
+        <!-- Target Score Card -->
         <div class="bg-gradient-to-r from-custom-pink to-pink-600 text-white rounded-lg p-6 shadow-lg transform hover:scale-105 transition duration-300">
             <div class="flex items-center justify-between">
                 <div>
@@ -53,37 +58,65 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Modernized Action Buttons - without outer container -->
+        <div class="flex flex-col justify-center gap-4">
+            <!-- New Score Registration Button -->
+            <a href="{% url 'tracker:new_score' %}" class="group relative overflow-hidden rounded-lg bg-white px-4 py-3 shadow-md transition-all duration-300 hover:shadow-lg border border-custom-purple/30">
+                <div class="absolute inset-0 bg-gradient-to-r from-custom-purple/10 to-custom-purple/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="relative flex items-center justify-between">
+                    <span class="flex items-center font-medium text-custom-purple">
+                        <i data-feather="plus-circle" class="w-5 h-5 mr-2 transition-transform duration-300 group-hover:scale-110"></i>
+                        新規スコア登録
+                    </span>
+                    <i data-feather="chevron-right" class="w-5 h-5 text-custom-purple/70 transition-transform duration-300 group-hover:translate-x-1"></i>
+                </div>
+            </a>
+            
+            <!-- Target Score Setting Button -->
+            <a href="{% url 'tracker:new_target_score' %}" class="group relative overflow-hidden rounded-lg bg-white px-4 py-3 shadow-md transition-all duration-300 hover:shadow-lg border border-custom-pink/30">
+                <div class="absolute inset-0 bg-gradient-to-r from-custom-pink/10 to-custom-pink/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="relative flex items-center justify-between">
+                    <span class="flex items-center font-medium text-custom-pink">
+                        <i data-feather="target" class="w-5 h-5 mr-2 transition-transform duration-300 group-hover:scale-110"></i>
+                        目標スコア設定
+                    </span>
+                    <i data-feather="chevron-right" class="w-5 h-5 text-custom-pink/70 transition-transform duration-300 group-hover:translate-x-1"></i>
+                </div>
+            </a>
+        </div>
     </div>
-
+    
     {% load static %}
 
-    <!-- スコア履歴チャート -->
+    <!-- Score History Chart - reverted to original implementation -->
     <div class="bg-white shadow-lg rounded-lg p-6 mb-8 border border-gray-100 hover:shadow-xl transition duration-300">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">
             <i data-feather="trending-up" class="inline-block mr-2"></i>スコア推移
         </h2>
         
-        <div class="w-full flex items-center justify-center">
+        <div style="height: 400px; width: 100%;">
             <canvas id="scoreChart"></canvas>
-        </div>
+          </div>
     </div>
+    
 
-    <!-- Chart.js 読み込み -->
+    <!-- Chart.js loading -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- DjangoのURLをJavaScript変数に渡す -->
+    <!-- Pass Django URL to JavaScript variable -->
     <script>
         var scoreHistoryUrl = "{% url 'tracker:score_history' %}?score_type_id={{ score_type.id }}";
     </script>
 
-    <!-- 外部JSを読み込む -->
+    <!-- Load external JS -->
     <script src="{% static 'js/score_chart.js' %}"></script>
 
-    <!-- スコア履歴テーブル -->
+    <!-- Score History Table with improved styling -->
     <div class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 hover:shadow-xl transition duration-300">
         <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-xl font-semibold text-gray-800">
-                <i data-feather="list" class="inline-block mr-2"></i>スコア履歴
+            <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                <i data-feather="list" class="mr-3 h-5 w-5 text-custom-purple"></i>スコア履歴
             </h2>
         </div>
         <div class="overflow-x-auto">
@@ -96,7 +129,7 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    <!-- スコア履歴を表示 -->
+                    <!-- Display score history -->
                     {% for score in scores %}
                     <tr class="hover:bg-gray-50 transition duration-150">
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -126,13 +159,18 @@
                             {{ score.score }}
                         </td>
                     </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="px-6 py-8 text-center text-gray-500">
+                            スコア記録がありません。新しいスコアを登録してください。
+                        </td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
         
-        <!-- ページネーションがある場合はここに追加 -->
+        <!-- Pagination would go here if needed -->
     </div>
 </div>
 {% endblock %}
-

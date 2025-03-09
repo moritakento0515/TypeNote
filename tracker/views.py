@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Max
+from django.urls import reverse
+
 
 from .models import Score, ScoreType, TargetScore, Community, CommunityMember, UserProfile
 from .forms import ScoreForm ,TargetScoreForm ,ProfileForm
@@ -112,14 +114,19 @@ def score_history(request):
         scores = Score.objects.filter(user=request.user, score_type=score_type).order_by('timestamp')
     else:
         scores = Score.objects.filter(user=request.user).order_by('timestamp')
+        score_type = None
     
     # 対象のスコア種類でフィルタ
     #scores = Score.objects.filter(user=request.user, score_type=score_type).order_by('timestamp')
+    
+    target_obj = TargetScore.objects.filter(user=request.user, score_type=score_type).first()
+    target_score = target_obj.target_score if target_obj else 3000
     
     data = {
         #"2025-02-08 11:37:21" のような形の文字列に変換し、JSONで送信するためにリストに格納
         'timestamps': [score.timestamp.strftime('%Y-%m-%d %H:%M:%S') for score in scores],
         'scores': [score.score for score in scores],
+        "target_score": target_score,
     }
     return JsonResponse(data)
 
@@ -139,8 +146,6 @@ def new_score(request):
     return render(request, 'tracker/new_score.html', context)
 
 #新規スコア追加フォームの入力内容を受け取り、データベースに保存するビュー
-from django.urls import reverse
-
 @login_required
 def new_score_create(request):
     if request.method == 'POST':
