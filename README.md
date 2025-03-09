@@ -31,8 +31,7 @@
 - **データベース:** SQLite
 - **その他:** Git, WSL2(開発環境の構築に利用)
 
-## 今後
-- 機能の追加、デプロイに向けた勉強などしていく予定です
+
  ![Image](https://github.com/user-attachments/assets/4996682b-fe89-4cbb-85e1-e1d1ee2e8b83)
 
 ![Image](https://github.com/user-attachments/assets/a7e3f4d1-6d11-4d51-9a62-50541c78553e)
