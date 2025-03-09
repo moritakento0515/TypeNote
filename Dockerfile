@@ -11,6 +11,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # アプリケーションファイルをコピー
 COPY . .
 
+# collectstatic を実行
+RUN python manage.py collectstatic --noinput
+
 # ポートを開放
 EXPOSE 8000
 
