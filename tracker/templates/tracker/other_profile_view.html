@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- プロフィールヘッダー -->
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+            <i data-feather="user" class="w-6 h-6 mr-2 text-custom-purple"></i>
+            {% if is_own_profile %}
+                プロフィール
+            {% else %}
+                {{ profile.nickname|default:viewed_user.username }} のプロフィール
+            {% endif %}
+        </h1>
+        {% if is_own_profile %}
+        <a href="{% url 'tracker:profile_edit' %}" class="inline-flex items-center px-4 py-2 bg-custom-purple text-white rounded-full hover:bg-purple-700 transition duration-300">
+            <i data-feather="edit-2" class="w-4 h-4 mr-2"></i>
+            プロフィール編集
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- プロフィール情報 -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+        <div class="space-y-4">
+            <div class="flex items-start">
+                <div class="w-32 flex-shrink-0">
+                    <span class="text-gray-600 font-medium">ニックネーム</span>
+                </div>
+                <div class="flex-grow">
+                    <p class="text-gray-800 font-semibold">{{ profile.nickname|default:viewed_user.username }}</p>
+                </div>
+            </div>
+            <div class="flex items-start">
+                <div class="w-32 flex-shrink-0">
+                    <span class="text-gray-600 font-medium">自己紹介</span>
+                </div>
+                <div class="flex-grow">
+                    <p class="text-gray-800">{{ profile.bio|linebreaksbr|default:"未設定" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- コミュニティセクション -->
+    <div class="mt-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+            <i data-feather="users" class="w-5 h-5 mr-2 text-custom-purple"></i>
+            所属コミュニティ
+        </h2>
+        
+        {% if communities %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% for membership in communities %}
+                    <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-100 hover:border-custom-purple transition duration-300">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i data-feather="hash" class="w-4 h-4 mr-2 text-custom-purple"></i>
+                                <span class="text-gray-800">{{ membership.community.name }}</span>
+                            </div>
+                            {% if membership in common_communities %}
+                                <span class="bg-custom-pink text-white text-xs px-2 py-1 rounded-full">共通</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-gray-50 rounded-lg p-6 text-center">
+                <i data-feather="users" class="w-12 h-12 mx-auto mb-3 text-gray-400"></i>
+                <p class="text-gray-600">所属しているコミュニティはありません。</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- 最高スコアセクション -->
+    {% if best_scores %}
+    <div class="mt-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+            <i data-feather="award" class="w-5 h-5 mr-2 text-custom-purple"></i>
+            最高スコア
+        </h2>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            スコアタイプ
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            最高スコア
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for score in best_scores %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ score.score_type__name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-custom-purple">
+                            {{ score.best_score }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 戻るボタン -->
+    <div class="mt-6">
+        <a href="javascript:history.back()" class="inline-flex items-center text-custom-purple hover:text-custom-pink transition-colors">
+            <i data-feather="arrow-left" class="mr-1"></i>
+            前のページに戻る
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  feather.replace({ width: '1em', height: '1em' });
+</script>
+{% endblock %}

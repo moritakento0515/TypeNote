@@ -15,5 +15,6 @@ urlpatterns = [
     path('scores/ranking/', views.community_score_ranking, name='community_score_ranking'),
     path('profile/', views.profile_view, name='profile_view'),
     path('profile/edit/', views.profile_edit, name='profile_edit'),
+    path('user/<int:user_id>/', views.other_profile_view, name='other_profile_view'),
     
 ]

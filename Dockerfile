@@ -5,7 +5,7 @@ FROM python:3.10
 WORKDIR /app
 
 # 必要なパッケージをインストール
-COPY requirements.txt requirements-dev.txt .  
+COPY requirements.txt requirements-dev.txt ./ 
 RUN pip install --no-cache-dir -r requirements.txt  
 
 # アプリケーションファイルをコピー

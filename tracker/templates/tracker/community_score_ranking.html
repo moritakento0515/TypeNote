@@ -111,7 +111,11 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">{{ entry.nickname }}</div>
+                                <div class="text-sm font-medium text-gray-900">
+                                    <a href="{% url 'tracker:other_profile_view' user_id=entry.user_id %}" class="text-custom-purple hover:text-custom-pink hover:underline transition-colors">
+                                        {{ entry.nickname }}
+                                    </a>
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-bold text-custom-purple">{{ entry.best_score }}</div>
@@ -145,4 +149,3 @@
   feather.replace({ width: '1em', height: '1em' });
 </script>
 {% endblock %}
-

@@ -43,9 +43,43 @@ def profile_edit(request):
     }
     return render(request, 'tracker/profile_edit.html', context)
 
-
-
-
+#////////////////////////////////////////////////////////////////////////////////////////////////
+# 他のユーザーのプロフィールを表示するための新しいビュー
+@login_required
+def other_profile_view(request, user_id):
+    # 表示対象のユーザーを取得
+    user = get_object_or_404(User, id=user_id)
+    profile = get_object_or_404(UserProfile, user=user)
+    
+    # そのユーザーが所属しているコミュニティを取得
+    communities = CommunityMember.objects.filter(user=user)
+    
+    # 閲覧者と対象ユーザーが共通して所属しているコミュニティを特定
+    viewer_communities = CommunityMember.objects.filter(user=request.user).values_list('community', flat=True)
+    common_communities = communities.filter(community__in=viewer_communities)
+    
+    # そのユーザーの最高スコア情報を取得
+    best_scores = (
+        Score.objects.filter(user=user)
+        .values('score_type__name')
+        .annotate(best_score=Max('score'))
+        .order_by('-best_score')
+    )
+    
+    context = {
+        'viewed_user': user,
+        'profile': profile,
+        'communities': communities,
+        'common_communities': common_communities,
+        'best_scores': best_scores,
+        'is_own_profile': (user.id == request.user.id)
+    }
+    
+    # 自分自身のプロフィールを見る場合は通常のプロフィールビューにリダイレクト
+    if user.id == request.user.id:
+        return redirect('tracker:profile_view')
+    
+    return render(request, 'tracker/other_profile_view.html', context)
 
 #////////////////////////////////////////////////////////////////////////////////////////////////
 #ユーザーのスコア一覧を表示するビュー

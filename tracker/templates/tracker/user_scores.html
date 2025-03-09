@@ -136,27 +136,31 @@
                             <i data-feather="calendar" class="inline-block mr-1 h-4 w-4"></i>
                             {{ score.timestamp|date:"Y/m/d H:i" }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium
-                            {% if score.diff_sign == 'positive' %} text-green-600 {% elif score.diff_sign == 'negative' %} text-yellow-600 {% else %} text-green-600 {% endif %}">
+                        <td class="px-6 py-4 whitespace-nowrap">
                             {% if score.diff_sign == 'positive' %}
-                                <span class="inline-flex items-center">
-                                    <i data-feather="trending-up" class="mr-1 h-4 w-4"></i>
-                                    +{{ score.diff }}点越え！
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <i data-feather="trending-up" class="mr-1 h-3 w-3"></i>
+                                    +{{ score.diff }}点越え
                                 </span>
                             {% elif score.diff_sign == 'negative' %}
-                                <span class="inline-flex items-center">
-                                    <i data-feather="trending-down" class="mr-1 h-4 w-4"></i>
-                                    あと{{ score.diff }}点！
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <i data-feather="trending-down" class="mr-1 h-3 w-3"></i>
+                                    あと{{ score.diff }}点
                                 </span>
                             {% else %}
-                                <span class="inline-flex items-center">
-                                    <i data-feather="check-circle" class="mr-1 h-4 w-4"></i>
-                                    目標達成！
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <i data-feather="check-circle" class="mr-1 h-3 w-3"></i>
+                                    目標達成
                                 </span>
                             {% endif %}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                             {{ score.score }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <button class="text-gray-400 hover:text-custom-purple transition-colors duration-200">
+                                <i data-feather="more-horizontal" class="h-4 w-4"></i>
+                            </button>
                         </td>
                     </tr>
                     {% empty %}
