@@ -19,7 +19,6 @@ def profile_view(request):
     profile, created = UserProfile.objects.get_or_create(user=request.user)
     # 所属しているコミュニティ（CommunityMember経由）を取得
     communities = CommunityMember.objects.filter(user=request.user)
-    
     context = {
         'profile': profile,
         'communities': communities,
@@ -236,8 +235,9 @@ def new_target_score_create(request):
 #スコアランキングを表示するビュー
 @login_required
 def community_score_ranking(request):
-    communities = Community.objects.all()
+    communities = Community.objects.filter(members__user=request.user).distinct()
     score_types = ScoreType.objects.all()
+    print(communities)
 
     community_id = request.GET.get("community")
     score_type_id = request.GET.get("score_type")

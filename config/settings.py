@@ -11,20 +11,20 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
 from pathlib import Path
-import environ  # django-environをインポート
+import environ  
 
-# BASE_DIRの定義
+# BASE_DIRの定義(#Django 3.1 以降では、pathlib を使う方法が推奨されている)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# django-environの初期化
+# django-environの初期化(デフォルト値の設定可能)
 env = environ.Env(
-    # デフォルト値の設定が必要ならこちらで定義可能
     DEBUG=(bool, False)
 )
+
 # .envファイルの読み込み
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-# SECRET_KEY, DEBUG, ALLOWED_HOSTS の設定
+# SECRET_KEY, DEBUG, ALLOWED_HOSTS の設定(.envファイルから読み込む)
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG')
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
@@ -72,7 +72,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Database の設定
+# Database の設定(.envファイルから読み込む)
 DATABASES = {
     'default': {
         'ENGINE': env('DATABASE_ENGINE'),
@@ -119,15 +119,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = '/static/'
-#Django 3.1 以降では、pathlib を使う方法が推奨されている
 BASE_DIR = Path(__file__).resolve().parent.parent 
-#STATICFILES_DIRS は Django が 静的ファイルを探す場所 を指定する設定
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]                       
 
+# 静的ファイルのURLパス
+STATIC_URL = '/static/'
+
+# collectstatic コマンドで静的ファイルを収集するディレクトリ
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# 開発環境でDjangoが静的ファイルを探すディレクトリ（必須でない場合は削除可）
+STATICFILES_DIRS = [BASE_DIR / 'static']
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

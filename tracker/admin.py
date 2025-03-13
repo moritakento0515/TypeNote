@@ -15,6 +15,17 @@ class ScoreAdmin(admin.ModelAdmin):
     list_display = ('user', 'score', 'score_type', 'timestamp',)
     list_filter = ('score_type', 'user',)
     search_fields = ('user__username',)
+    
+    
+    
+@admin.register(TargetScore)
+class TargetScoreAdmin(admin.ModelAdmin):
+    list_display = ('user', 'score_type', 'target_score',)
+    list_filter = ('score_type', 'user',)
+    search_fields = ('user__username',)
+    
+    
+
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
@@ -27,14 +38,11 @@ class UserProfileAdmin(admin.ModelAdmin):
         # そこから各コミュニティの名前を取り出して結合します。
         return ", ".join([member.community.name for member in obj.user.communities.all()])
     get_communities.short_description = "コミュニティ"
+    
+    
+    
 
-@admin.register(TargetScore)
-class TargetScoreAdmin(admin.ModelAdmin):
-    list_display = ('user', 'score_type', 'target_score',)
-    list_filter = ('score_type', 'user',)
-    search_fields = ('user__username',)
-
-
+# 以下のコードで、Community と CommunityMember を管理画面で編集できるようにします。
 # CommunityMember を Community 管理画面で inline 編集できるようにする
 class CommunityMemberInline(admin.TabularInline):
     model = CommunityMember

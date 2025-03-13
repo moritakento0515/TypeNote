@@ -1,236 +1,222 @@
-// DOMが完全に読み込まれた後に実行する処理
-document.addEventListener("DOMContentLoaded", () => {
-  // Chart.jsが正しく読み込まれているか確認
-  if (typeof Chart === "undefined") {
-    console.error("Chart.jsが読み込まれていません。スクリプトタグを確認してください。")
-    return
-  }
+/**
+ * スコア履歴をグラフ表示するためのChart.jsコード
+ * 目標スコア以上と以下で背景色が変わります
+ */
 
-  // Progateスタイルのカラーパレット
-  const colors = {
-    primary: "#2E75B6", // Progateのメインブルー
-    primaryLight: "#4A90E2", // 明るめのブルー
-    success: "#55C500", // 達成時の緑（Progateの完了色）
-    successLight: "#88D840", // 明るめの緑
-    warning: "#A464C4", // 未達成時の紫
-    warningLight: "#B57EDC", // 明るめの紫
-    target: "#FF5252", // 目標ライン（赤）
-    gridLine: "#EAEDF2", // グリッドライン
-    textDark: "#333F4D", // テキスト（濃い色）
-    textLight: "#8492A6", // テキスト（薄い色）
-  }
+// グローバル設定
+Chart.defaults.font.family = "'Hiragino Kaku Gothic Pro', 'メイリオ', sans-serif";
+Chart.defaults.font.size = 14;
 
-  fetch(scoreHistoryUrl)
-    .then((response) => response.json())
-    .then((data) => {
-      const labels = data.timestamps.map((ts) => {
-        const date = new Date(ts)
-        return `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2, "0")}`
-      })
+// スコア履歴データを取得して表示する関数
+async function displayScoreChart() {
+  try {
+    // データの取得
+    const response = await fetch(window.scoreHistoryUrl);
+    const data = await response.json();
+    
+    // データの検証
+    if (!data || !Array.isArray(data.scores) || data.scores.length === 0) {
+      console.warn("有効なスコアデータがありません。");
+      return;
+    }
 
-      const scores = data.scores
-      const targetScore = data.target_score // 目標スコアを取得
-
-      // スコアが存在しない場合は何もしない
-      if (scores.length === 0) return
-
-      const ctx = document.getElementById("scoreChart").getContext("2d")
-
-      // Y軸の範囲を設定（スコアの変動を見やすく）
-      const minScore = Math.min(...scores, targetScore)
-      const maxScore = Math.max(...scores, targetScore)
-      const yMin = Math.floor(minScore * 0.9) // 最小値を少し下げる
-      const yMax = Math.ceil(maxScore * 1.1) // 最大値を少し上げる
-
-      // 目標スコアの相対位置を計算（0〜1の範囲）
-      const targetRatio = (targetScore - yMin) / (yMax - yMin)
-
-      // フォントスタイルを設定
-      Chart.defaults.font.family = "'Hiragino Kaku Gothic Pro', 'メイリオ', sans-serif"
-      Chart.defaults.font.size = 12
-
-      // アニメーションの設定
-      const animationOptions = {
-        duration: 1500,
-        easing: "easeOutQuart",
-      }
-
-      // グラフを描画
-      new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: "スコア推移",
-              data: scores,
-              borderColor: colors.primary,
-              borderWidth: 3,
-              fill: true, // 塗りつぶしを有効化
-              backgroundColor: (context) => {
-                const chart = context.chart
-                const { ctx, chartArea } = chart
-
-                if (!chartArea) {
-                  // チャートエリアがまだ利用できない場合
-                  return null
-                }
-
-                // チャートの高さを取得
-                const chartHeight = chartArea.bottom - chartArea.top
-
-                // 目標スコアのY座標を計算
-                const targetY = chartArea.bottom - targetRatio * chartHeight
-
-                // グラデーションを作成
-                const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom)
-
-                // 目標スコアの位置を0〜1の範囲に変換
-                const normalizedTargetY = (targetY - chartArea.top) / chartHeight
-
-                // 目標スコア以上の領域（緑系）- Progateスタイル
-                gradient.addColorStop(0, "rgba(85, 197, 0, 0.4)") // 上部（緑）
-                gradient.addColorStop(normalizedTargetY - 0.001, "rgba(136, 216, 64, 0.15)") // 目標スコア直前
-
-                // 目標スコア未満の領域（紫系）- Progateスタイル
-                gradient.addColorStop(normalizedTargetY, "rgba(164, 100, 196, 0.2)") // 目標スコア直後
-                gradient.addColorStop(1, "rgba(181, 126, 220, 0.05)") // 下部（薄紫）
-
-                return gradient
-              },
-              tension: 0.4, // 曲線をより滑らかに
-              pointBackgroundColor: "white",
-              pointBorderColor: colors.primary,
-              pointBorderWidth: 2,
-              pointRadius: 4,
-              pointHoverRadius: 6,
-              pointHoverBackgroundColor: colors.primary,
-              pointHoverBorderColor: "white",
-              pointHoverBorderWidth: 2,
-            },
-            {
-              label: "目標スコア",
-              data: Array(scores.length).fill(targetScore),
-              borderColor: colors.target,
-              borderWidth: 2,
-              borderDash: [6, 4],
-              fill: false,
-              pointRadius: 0,
-            },
-          ],
+    // Y軸の範囲計算
+    const yMin = Math.floor(Math.min(...data.scores, data.target_score) * 0.9);
+    const yMax = Math.ceil(Math.max(...data.scores, data.target_score) * 1.1);
+    
+    // 目標ラインの相対位置を計算（グラデーション表示用）
+    const targetRatio = (data.target_score - yMin) / (yMax - yMin);
+    
+    // Canvas要素の取得
+    const canvas = document.getElementById('scoreChart');
+    const ctx = canvas.getContext('2d');
+    
+    // チャートの描画
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: data.timestamps.map(timestamp => formatDate(timestamp)),
+        datasets: [
+          // スコアデータ
+          {
+            label: 'スコア',
+            data: data.scores,
+            borderColor: '#2E75B6',
+            backgroundColor: (context) => createGradientBackground(context, targetRatio),
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: 'white',
+            pointBorderColor: '#2E75B6',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointHoverBackgroundColor: '#2E75B6',
+          },
+          // 目標スコアライン
+          {
+            label: '目標スコア',
+            data: Array(data.scores.length).fill(data.target_score),
+            borderColor: '#FF5252',
+            borderWidth: 2,
+            borderDash: [6, 4],
+            fill: false,
+            pointRadius: 0
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          duration: 1500,
+          easing: 'easeOutQuart'
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          animation: animationOptions,
-          interaction: {
-            mode: "index",
-            intersect: false,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: '日付',
+              color: '#333F4D',
+              font: { weight: 'bold', size: 13 }
+            },
+            ticks: {
+              color: '#8492A6',
+              maxTicksLimit: 10
+            },
+            grid: {
+              color: '#EAEDF2',
+              drawBorder: false
+            }
           },
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: "日付",
-                color: colors.textDark,
-                font: {
-                  weight: "bold",
-                  size: 13,
-                },
-                padding: { top: 10, bottom: 0 },
-              },
-              ticks: {
-                autoSkip: true,
-                maxTicksLimit: 10,
-                color: colors.textLight,
-                callback: function (value, index, values) {
-                  return index % Math.ceil(values.length / 10) === 0 ? this.getLabelForValue(value) : ""
-                },
-              },
-              grid: {
-                color: colors.gridLine,
-                drawBorder: false,
-              },
+          y: {
+            title: {
+              display: true,
+              text: 'スコア',
+              color: '#333F4D',
+              font: { weight: 'bold', size: 13 }
             },
-            y: {
-              title: {
-                display: true,
-                text: "スコア",
-                color: colors.textDark,
-                font: {
-                  weight: "bold",
-                  size: 13,
-                },
-                padding: { top: 0, bottom: 10 },
-              },
-              min: yMin,
-              max: yMax,
-              ticks: {
-                color: colors.textLight,
-                font: {
-                  size: 11,
-                },
-                padding: 8,
-              },
-              grid: {
-                color: colors.gridLine,
-                drawBorder: false,
-              },
+            min: yMin,
+            max: yMax,
+            ticks: {
+              color: '#8492A6',
+              font: { size: 11 },
+              padding: 8
             },
-          },
-          plugins: {
-            legend: {
-              labels: {
-                usePointStyle: true,
-                pointStyle: "circle",
-                boxWidth: 6,
-                boxHeight: 6,
-                color: colors.textDark,
-                font: {
-                  size: 13,
-                },
-                padding: 20,
-              },
-            },
-            tooltip: {
-              backgroundColor: "rgba(255, 255, 255, 0.95)",
-              titleColor: colors.textDark,
-              bodyColor: colors.textDark,
-              borderColor: "rgba(0, 0, 0, 0.1)",
-              borderWidth: 1,
-              cornerRadius: 8,
-              padding: 12,
-              boxPadding: 6,
+            grid: {
+              color: '#EAEDF2',
+              drawBorder: false
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: {
               usePointStyle: true,
-              callbacks: {
-                label: (context) => {
-                  const score = context.raw
-                  let label = context.datasetIndex === 0 ? `スコア: ${score}` : `目標スコア: ${score}`
-
-                  if (context.datasetIndex === 0) {
-                    if (score >= targetScore) {
-                      label += ` (目標達成: +${(score - targetScore).toFixed(1)})`
-                    } else {
-                      label += ` (目標まで: ${(targetScore - score).toFixed(1)})`
-                    }
-                  }
-
-                  return label
-                },
-                labelTextColor: (context) => {
-                  const score = context.raw
-                  // スコアデータセットの場合、目標達成かどうかで色を変える
-                  if (context.datasetIndex === 0) {
-                    return score >= targetScore ? colors.success : colors.warning
-                  }
-                  return colors.target // 目標スコアの場合
-                },
-              },
-            },
+              pointStyle: 'circle',
+              boxWidth: 6,
+              boxHeight: 6,
+              color: '#333F4D',
+              font: { size: 13 },
+              padding: 20
+            }
           },
-        },
-      })
-    })
-    .catch((error) => console.error("データ取得エラー:", error))
-})
+          tooltip: {
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            titleColor: '#333F4D',
+            bodyColor: '#333F4D',
+            borderColor: 'rgba(0, 0, 0, 0.1)',
+            borderWidth: 1,
+            cornerRadius: 8,
+            padding: 12,
+            boxPadding: 6,
+            usePointStyle: true,
+            callbacks: {
+              label: (context) => formatTooltipLabel(context, data.target_score),
+              labelTextColor: (context) => getTooltipTextColor(context, data.target_score)
+            }
+          }
+        }
+      }
+    });
+    
+  } catch (error) {
+    console.error("チャート初期化エラー:", error);
+  }
+}
 
+/**
+ * タイムスタンプを表示形式に変換
+ */
+function formatDate(timestamp) {
+  const date = new Date(timestamp);
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, "0");//1 桁の数字の場合に先頭に「0」を追加
+  return `${month}/${day} ${hours}:${minutes}`;
+}
+
+/**
+ * グラデーション背景を作成（目標スコアを基準に色分け）
+ */
+function createGradientBackground(context, targetRatio) {
+  const { ctx, chartArea } = context.chart;
+  if (!chartArea) return null;
+
+  // グラデーションの位置計算
+  const chartHeight = chartArea.bottom - chartArea.top;
+  const targetY = chartArea.bottom - targetRatio * chartHeight;
+  const normalizedTargetY = (targetY - chartArea.top) / chartHeight;
+
+  // グラデーションの作成
+  const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+  
+  // 目標より上：成功色（緑）
+  gradient.addColorStop(0, "rgba(85, 197, 0, 0.4)");
+  gradient.addColorStop(normalizedTargetY - 0.001, "rgba(136, 216, 64, 0.15)");
+  
+  // 目標より下：警告色（紫）
+  gradient.addColorStop(normalizedTargetY, "rgba(164, 100, 196, 0.2)");
+  gradient.addColorStop(1, "rgba(181, 126, 220, 0.05)");
+  
+  return gradient;
+}
+
+/**
+ * ツールチップのラベルをフォーマット
+ */
+function formatTooltipLabel(context, targetScore) {
+  const score = context.raw;
+  // データセットによってラベルを変更
+  let label = context.datasetIndex === 0 ? `スコア: ${score}` : `目標スコア: ${score}`;
+  
+  // スコアデータの場合、目標との差分を表示
+  if (context.datasetIndex === 0) {
+    // 目標達成しているかどうかで表示を変える
+    label += score >= targetScore
+      ? ` (目標達成: +${(score - targetScore).toFixed(1)})`
+      : ` (目標まで: ${(targetScore - score).toFixed(1)})`;
+  }
+  return label;
+}
+
+/**
+ * ツールチップのテキスト色を取得
+ */
+function getTooltipTextColor(context, targetScore) {
+  const score = context.raw;
+  // データセットと値によって色を変更
+  if (context.datasetIndex === 0) {
+    return score >= targetScore ? '#55C500' : '#A464C4'; // 達成で緑、未達成で紫
+  } else {
+    return '#FF5252'; // 目標線は赤
+  }
+}
+
+// ページ読み込み完了時にチャートを表示
+document.addEventListener('DOMContentLoaded', displayScoreChart);
