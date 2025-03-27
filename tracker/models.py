@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 #スコアの種類モデル
 class ScoreType(models.Model):
     name = models.CharField(max_length=100, unique=True, verbose_name="スコア種類")
-    description = models.TextField(blank=True, null=True, verbose_name="説明")  # 必要なら
+    description = models.TextField(blank=True, null=True, verbose_name="説明")  
 
     def __str__(self):
         return self.name
@@ -73,6 +73,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     nickname = models.CharField(max_length=100, blank=True, null=True, verbose_name="表示名")
     #profile_picture = models.ImageField(upload_to=user_profile_picture_path, blank=True, null=True, verbose_name="プロフィール画像")
+    grade = models.CharField(max_length=100, blank=True, null=True, verbose_name="学年")#3/28追加
     bio = models.TextField(blank=True, null=True, verbose_name="自己紹介")
 
     def __str__(self):

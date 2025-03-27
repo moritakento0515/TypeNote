@@ -73,7 +73,7 @@ async function displayScoreChart() {
           easing: 'easeOutQuart'
         },
         interaction: {
-          mode: 'index',
+          mode: 'nearest',
           intersect: false
         },
         scales: {

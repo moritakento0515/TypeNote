@@ -1,11 +1,14 @@
 // Description: スコア入力フィールドに Numpad を表示するスクリプト
 
-/**
- * スコア入力フィールドに Numpad を表示する関数
- */
-function numpad() {
-    // スコア入力フィールドと Numpad の要素を取得
-    const scoreInput = document.getElementById('id_score');
+function numpad(inputId) {
+    // スコア入力フィールドを取得
+    const scoreInput = document.getElementById(inputId);
+    // 要素が見つからない場合はエラーメッセージを表示して処理を中断
+    if (!scoreInput) {
+        console.error(`Numpad target element with ID "${inputId}" not found.`);
+        return;
+    }
+
     const numpadContainer = createNumpad();
     // Numpad の表示状態を管理するフラグ
     let isNumpadVisible = false;
@@ -100,5 +103,19 @@ function numpad() {
  *  DOMContentLoaded イベント: HTML が読み込まれ、解析された後に発生
  *  このイベントが発生した時点で、DOM が操作可能になる
  */
-document.addEventListener('DOMContentLoaded', numpad);
-    
+document.addEventListener('DOMContentLoaded', () => {
+    const possibleInputIds = [
+        'id_score',
+        'id_target_score',
+    ];
+
+    possibleInputIds.forEach(inputId => {
+        // ★★★ inputId を持つ要素が存在するかどうかを確認 ★★★
+        const element = document.getElementById(inputId);
+        if (element) {
+            // 要素が存在する場合のみ numpad() を呼び出す
+            numpad(inputId);
+        }
+    });
+
+});

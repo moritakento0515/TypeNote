@@ -18,7 +18,7 @@ def add_user_to_global_community(sender, instance, created, **kwargs):
         # スーパーユーザーがいるか確認し、いなければ作成
         admin_user = User.objects.filter(is_superuser=True).first()
         if not admin_user:
-            admin_user = User.objects.create_superuser(username="admin", password="xyz80666")
+            admin_user = User.objects.create_superuser(username="admin", password="admin")
             #print("管理者ユーザー 'admin' を作成しました")
 
         # Global コミュニティを作成（オーナーはスーパーユーザー）
