@@ -6,23 +6,41 @@ services:
     restart: always
     volumes:
       - static_volume:/app/staticfiles
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     env_file:
       - .env
-      
+
   nginx:
     image: nginx:latest
     container_name: django_nginx
     restart: always
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - static_volume:/app/staticfiles
       - ./media:/app/media
+      - certs:/etc/letsencrypt    # ← 追加
+      - certs:/var/lib/letsencrypt # ← 追加
     depends_on:
       - web
 
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - certs:/etc/letsencrypt
+      - certs:/var/lib/letsencrypt
+    entrypoint: >
+      sh -c "certbot certonly --standalone
+             --non-interactive --agree-tos
+             -m you@your.mail       # ← 変更
+             -d your.domain.com     # ← 変更
+             && cp -r /etc/letsencrypt /etc/letsencrypt.backup"
+    # nginx を止める必要がある場合は depends_on を外す
+
 volumes:
   static_volume:
+  certs:

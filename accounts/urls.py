@@ -6,7 +6,5 @@ app_name = 'accounts'
 
 urlpatterns = [
     path('', RedirectView.as_view(url='signup/', permanent=False)),
-    path('signup/', views.SignUpView.as_view(), name='signup'),
-    
-    
+    path('signup/', views.SignUpView.as_view(), name='signup'),   
 ]
