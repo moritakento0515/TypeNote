@@ -22,8 +22,11 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - static_volume:/app/staticfiles
       - ./media:/app/media
-      - certs:/etc/letsencrypt    # ← 追加
-      - certs:/var/lib/letsencrypt # ← 追加
+      - certs:/etc/letsencrypt          # 証明書用ボリューム
+      # ★ webroot 認証用の共有ボリュームを追加
+      - certbot_challenge:/var/www/certbot
+      # ↓ /var/lib/letsencrypt は webroot では必須ではないので削除してもOK (残しても可)
+      # - certs:/var/lib/letsencrypt
     depends_on:
       - web
 
@@ -31,16 +34,26 @@ services:
     image: certbot/certbot
     container_name: certbot
     volumes:
-      - certs:/etc/letsencrypt
-      - certs:/var/lib/letsencrypt
+      - certs:/etc/letsencrypt            # 証明書を書き込むボリューム
+      # ★ webroot 認証用の共有ボリュームを追加
+      - certbot_challenge:/var/www/certbot
+      # ↓ /var/lib/letsencrypt は webroot では必須ではないので削除してもOK (残しても可)
+      # - certs:/var/lib/letsencrypt
+    # ★ entrypoint を webroot 認証用に変更
     entrypoint: >
-      sh -c "certbot certonly --standalone
-             --non-interactive --agree-tos
-             -m you@your.mail       # ← 変更
-             -d your.domain.com     # ← 変更
-             && cp -r /etc/letsencrypt /etc/letsencrypt.backup"
-    # nginx を止める必要がある場合は depends_on を外す
+      sh -c "certbot certonly --webroot \
+             -w /var/www/certbot \
+             --non-interactive --agree-tos \
+             -m example.com \
+            # 本番環境で変更
+
+             -d www.type-note.com \
+             && cp -Lrf /etc/letsencrypt/live /etc/letsencrypt.backup"
+      # ↑ ドメイン名 (-d) とメールアドレス (-m) が正しいか確認
+      # ↑ www なしも使う場合は `-d www.type-note.com -d type-note.com \` のように追記
 
 volumes:
   static_volume:
-  certs:
+  certs:                            # 証明書用ボリューム
+  # ★ webroot 認証用のボリューム定義を追加
+  certbot_challenge:
