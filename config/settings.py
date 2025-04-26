@@ -139,3 +139,25 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #ログアウト後のリダイレクト先
 #最初に/をつけないと、現在のURLからの相対パスとして解釈されるので注意
 #LOGOUT_REDIRECT_URL = '/accounts/login/'  
+
+# -------------------------------------------------------------------
+# HTTPS環境下でのCSRFとCookieセキュリティ強化設定
+# -------------------------------------------------------------------
+
+# “信頼できる”オリジンとして HTTPS ドメインを明示
+CSRF_TRUSTED_ORIGINS = [
+    "https://your-domain.com",
+    # 開発環境で localhost の HTTPS を使う場合は以下も追加
+    "https://localhost:8000",
+]
+
+# クッキーを HTTPS 通信のみに限定
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE    = True
+
+# X-Forwarded-Proto ヘッダーを信頼して HTTPS 判定
+# （リバースプロキシ／ロードバランサ越しのとき）
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# （オプション）全 HTTP リクエストを HTTPS にリダイレクト
+SECURE_SSL_REDIRECT = True
