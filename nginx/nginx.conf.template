@@ -1,4 +1,4 @@
-user nginx;                    # Nginx プロセスを “nginx” ユーザーで動作
+#user nginx;                    # Nginx プロセスを “nginx” ユーザーで動作
 
 events {}                      # 接続/イベントモデルの設定（デフォルトのまま）
 

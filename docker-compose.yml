@@ -21,7 +21,7 @@ services:
       - "443:443"
     volumes:
       # nginx.confの読み取り
-      - ./nginx.conf.template:/etc/nginx/nginx.conf.template:ro
+      - ./nginx/nginx.conf.template:/etc/nginx/nginx.conf.template:ro
       # 静的ファイルの読み取り
       - static_volume:/app/staticfiles
       - ./media:/app/media
