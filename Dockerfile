@@ -14,8 +14,8 @@ COPY . .
 # collectstatic を実行
 RUN python manage.py collectstatic --noinput
 
-# ポートを開放
+# ポートを開放(doker-compose.ymlで指定しているが、明確にするためDockerfileでも指定しておく)
 EXPOSE 8000
 
-# Gunicornを起動してDjangoを実行
+# Gunicornを起動してDjangoを実行 8000で待機
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "config.wsgi:application"]

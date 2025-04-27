@@ -1,0 +1,69 @@
+user nginx;                    # Nginx プロセスを “nginx” ユーザーで動作
+
+events {}                      # 接続/イベントモデルの設定（デフォルトのまま）
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    upstream django_app {
+        server web:8000;       # Docker ネットワーク上の Django コンテナ(web)をバックエンドに登録
+    }
+
+    #─────────────────────────────────────────
+    # HTTP (80) → HTTPS (443) リダイレクト + ACME 認証保持
+    #─────────────────────────────────────────
+    server {
+        listen 80;
+        server_name ${SERVER_NAME};
+
+        # Let’s Encrypt HTTP-01 用チャレンジ応答
+        location /.well-known/acme-challenge/ {
+            root /var/www/certbot;
+        }
+
+        # 上記以外はすべて HTTPS へ 301 リダイレクト
+        location / {
+            return 301 https://$host$request_uri;
+        }
+    }
+
+    #─────────────────────────────────────────
+    # HTTPS (443) サーバーブロック
+    #─────────────────────────────────────────
+    server {
+        listen 443 ssl http2;                   # HTTP/2 対応
+        server_name ${SERVER_NAME};
+
+        # SSL 設定
+        ssl_certificate     /etc/letsencrypt/live/${SERVER_NAME}/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/${SERVER_NAME}/privkey.pem;
+        ssl_protocols       TLSv1.2 TLSv1.3;
+        ssl_ciphers         HIGH:!aNULL:!MD5;
+        ssl_prefer_server_ciphers on;
+
+        # ACME チャレンジは HTTPS でも応答させる
+        location /.well-known/acme-challenge/ {
+            root /var/www/certbot;
+        }
+
+        # Django アプリへのリバースプロキシ設定
+        location / {
+            proxy_pass         http://django_app;
+            proxy_set_header   Host $host;
+            proxy_set_header   X-Real-IP $remote_addr;
+            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header   X-Forwarded-Proto $scheme;
+        }
+
+        # 静的ファイルの配信
+        location /static/ {
+            alias /app/staticfiles/;
+        }
+
+        # メディアファイルの配信
+        location /media/ {
+            alias /app/media/;
+        }
+    }
+}
